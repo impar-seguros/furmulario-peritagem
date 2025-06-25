@@ -39,6 +39,7 @@ const SinistroForm = () => {
       .catch(reject);
   });
 };
+// Função para gerar o PDF com os dados do formulário
 
 const gerarPDF = async (data) => {
   const doc = new jsPDF({
@@ -47,15 +48,16 @@ const gerarPDF = async (data) => {
     format: 'a4',
   });
 
-  // ⬇️ Carrega a imagem da pasta public dinamicamente
+  //  Carrega a imagem da pasta public dinamicamente
   const logoBase64 = await loadImageAsBase64('/logo.png');
 
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const logoWidth = 40;
   const logoHeight = 40;
   const logoX = (pageWidth - logoWidth) / 2;
 
-  // ⬇️ Insere o logotipo centralizado
+  //  Insere o logotipo centralizado
   doc.addImage(logoBase64, 'PNG', logoX, 10, logoWidth, logoHeight);
 
   doc.setFontSize(16);
@@ -90,66 +92,23 @@ const gerarPDF = async (data) => {
   addMultilineText('Parecer do(a) Gestor(a):', data.parecerGestor);
   addMultilineText('Parecer da Chefe de Regulação:', data.parecerChefe);
 
-  // ⬇️ Visualizar antes de baixar
+  // Data e hora completas no rodapé, centralizado
+  const agora = new Date();
+  const dataHoraStr = agora.toLocaleDateString('pt-BR') + ' ' + 
+                      agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'normal');
+  doc.setTextColor(100); // cinza claro
+  doc.text(`Gerado em: ${dataHoraStr}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+  //gerar envio pdf para e-mail
+
+  // Visualizar antes de baixar
   const pdfUrl = doc.output('bloburl');
   window.open(pdfUrl);
-};
-
-
-  
- 
-//funcao para gerar o PDF
-/*
-  const gerarPDF = (data) => {
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-  });
-
-  const logoBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...'; // cole sua logo aqui
-
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const logoWidth = 40;
-  const logoHeight = 40;
-  const logoX = (pageWidth - logoWidth) / 2;
-
-  doc.setFontSize(16);
-  doc.setTextColor(229, 35, 27); // Cor da ÍMPAR
-  doc.text('EMPRESA ÍMPAR SEGUROS', 20, 20);
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-  doc.text('Direção de Regulação de Sinistros', 20, 28);
-
-  doc.setFontSize(11);
-  let y = 40;
-
-  const addMultilineText = (label, value) => {
-    doc.setFont(undefined, 'bold');
-    doc.text(label, 20, y);
-    y += 6;
-    doc.setFont(undefined, 'normal');
-
-    const lines = doc.splitTextToSize(value, 170);
-    doc.text(lines, 20, y);
-    y += lines.length * 6 + 4;
   };
-
-  addMultilineText('Processo Sinistro Nº:', data.numeroProcesso);
-  addMultilineText('Data de Entrada:', data.dataEntrada);
-  addMultilineText('Resumo da Descrição do Acidente:', data.resumoAcidente);
-  addMultilineText('Parecer do Perito(a):', data.parecerPerito);
-  addMultilineText('Parecer do(a) Gestor(a):', data.parecerGestor);
-  addMultilineText('Parecer da Chefe de Regulação:', data.parecerChefe);
   
-  
-  //gerar para imprimir o PDF
-  const pdfUrl = doc.output('bloburl');
-  window.open(pdfUrl);
-};
-*/
-
-
   return (
     <div className="max-w-4xl mx-auto p-6 bg-[#EDEDED] shadow-md rounded-lg border-[1.5px] border-[#E5231B]">
     <div className="flex justify-center">
